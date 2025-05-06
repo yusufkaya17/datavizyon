@@ -24,7 +24,7 @@
         }
         .main-container {
             display: flex;
-            flex-wrap: nowrap; /* Yan yana kalmasını sağla */
+            flex-wrap: nowrap;
             justify-content: center;
             gap: 30px;
             width: 100%;
@@ -45,7 +45,9 @@
             flex: 0 0 350px; /* Sabit genişlik */
         }
         .right-panel {
-             flex-grow: 1; /* Kalan alanı kapla */
+             flex-grow: 1;
+             display: flex;
+             flex-direction: column;
         }
 
         #drawingCanvas {
@@ -53,7 +55,7 @@
             cursor: crosshair;
             background-color: #ffffff;
             margin-bottom: 20px;
-            touch-action: none; /* Mobil cihazlarda kaydırmayı önle */
+            touch-action: none;
             border-radius: 5px;
         }
         .controls {
@@ -69,7 +71,7 @@
             color: white;
             border: none;
             border-radius: 6px;
-            transition: background-color 0.2s ease, transform 0.1s ease;
+            transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         button:hover {
@@ -92,59 +94,128 @@
         }
         .normalized-container {
             text-align: center;
-            margin-top: 10px;
+            margin-top: 15px; /* Biraz daha boşluk */
         }
         .normalized-container small {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px; /* Boşluk artırıldı */
             color: #666;
         }
+        /* Normalize edilmiş resim konteyneri büyütüldü */
         #normalizedImageContainer {
-             width: 120px;
-             height: 120px;
+             width: 180px;  /* Büyütüldü */
+             height: 180px; /* Büyütüldü */
              border: 1px dashed #ccc;
-             display: inline-flex; /* inline-block yerine */
+             display: inline-flex;
              justify-content: center;
              align-items: center;
              background-color: #f8f8f8;
-             padding: 5px;
+             padding: 8px; /* İç boşluk */
              border-radius: 4px;
+             transition: background-color 0.3s ease; /* Geçiş efekti */
         }
+        /* Normalize edilmiş resim */
         #normalizedImage {
             max-width: 100%;
             max-height: 100%;
             display: none; /* Başlangıçta gizli */
             image-rendering: pixelated; /* Pikselli görünümü koru */
+            opacity: 0; /* Animasyon için başlangıç */
+            transition: opacity 0.5s ease-in-out; /* Fade-in animasyonu */
         }
+        #normalizedImage.visible {
+            display: block;
+            opacity: 1;
+        }
+         /* Resim güncellendiğinde konteynere hafif bir vurgu */
+         #normalizedImageContainer.updated {
+             background-color: #e9e9e9;
+             animation: pulse_bg 0.6s ease-out;
+         }
+         @keyframes pulse_bg {
+             0% { background-color: #e9e9e9; }
+             50% { background-color: #dddddd; }
+             100% { background-color: #f8f8f8; } /* Normal rengine dön */
+         }
+
 
         /* --- Network Visualization Stilleri --- */
-        .network-container {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            width: 100%;
-            height: 100%; /* Panelin yüksekliğini doldur */
-            position: relative;
-            padding: 10px 5px; /* Daha az padding */
-            overflow: hidden; /* Taşanları gizle */
+        .network-container { display: flex; justify-content: space-around; align-items: center; width: 100%; flex-grow: 1; position: relative; padding: 30px 5px 10px 5px; overflow: hidden; min-height: 420px; } /* Üst padding arttı */
+        .layer { display: flex; flex-direction: column; align-items: center; justify-content: space-around; height: calc(100% - 45px); padding: 0 5px; flex: 1; min-width: 60px; position: relative; margin-top: 30px; } /* Yükseklik ve margin ayarlandı */
+
+        /* Genel Düğüm Stili */
+        .node { border: 2px solid #adb5bd; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 500; background: linear-gradient(145deg, #e9ecef, #ffffff); box-shadow: 2px 2px 4px #d6d9dc, -2px -2px 4px #ffffff; position: relative; z-index: 1; transition: all 0.3s ease; color: #495057; flex-shrink: 0; }
+
+        /* GİRİŞ Katmanı Düğümleri (İçi Boş) */
+        .input-layer .node {
+             width: 24px;
+             height: 24px;
+             border-width: 1px;
+             background: #e9ecef; /* Biraz daha belirgin */
+             box-shadow: 1px 1px 2px #d6d9dc, -1px -1px 2px #ffffff;
+             /* İçerik (sayı) olmayacak */
+             color: transparent; /* İçeriği gizle (varsa) */
+             font-size: 1px; /* İçeriği küçült */
         }
-        .layer { display: flex; flex-direction: column; align-items: center; justify-content: space-around; /* Düğümleri dikeyde dağıt */ height: 100%; padding: 0 5px; flex: 1; min-width: 60px; }
-        .node { width: 38px; height: 38px; border: 2px solid #adb5bd; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 600; font-size: 12px; background: linear-gradient(145deg, #e9ecef, #ffffff); box-shadow: 2px 2px 4px #d6d9dc, -2px -2px 4px #ffffff; position: relative; z-index: 1; transition: all 0.3s ease; color: #495057; flex-shrink: 0; }
-        .node.output { border-color: #007bff; color: #0056b3; font-weight: 700; }
-        .node.highlight { border-color: #17a2b8; background: linear-gradient(145deg, #cbeef3, #ffffff); color: #0c5460; transform: scale(1.15); box-shadow: 3px 3px 6px #b4dee4, -3px -3px 6px #ffffff; }
+
+        /* GİZLİ Katman Düğümleri (Ondalıklı) */
+        .hidden-layer-1 .node,
+        .hidden-layer-2 .node {
+            width: 34px; /* Ondalık sığması için */
+            height: 34px;
+            font-size: 10px; /* Font boyutu */
+            border-width: 1px;
+            font-weight: 400;
+             /* İçerik: 0.XX */
+        }
+
+        /* ÇIKIŞ Katmanı Düğümleri */
+        .output-layer .node {
+            width: 38px;
+            height: 38px;
+            border-color: #007bff;
+            color: #0056b3;
+            font-weight: 700;
+            font-size: 12px;
+            border-width: 2px;
+            /* İçerik: 0-9 */
+        }
+        /* Vurgulanan Düğüm Stili */
+        .node.highlight {
+            border-color: #ff7f0e; /* Turuncu vurgu */
+            background: linear-gradient(145deg, #ffe8d6, #ffffff);
+            color: #c25a00;
+            transform: scale(1.15);
+            box-shadow: 3px 3px 6px #fccca7, -3px -3px 6px #ffffff;
+            z-index: 2;
+        }
+        /* Kazanan çıkış düğümü için ekstra vurgu */
+        .node.winner {
+            border-color: #dc3545 !important; /* Kırmızı çerçeve */
+            color: #721c24 !important;
+            background: linear-gradient(145deg, #f8d7da, #ffffff) !important;
+            transform: scale(1.25) !important; /* Biraz daha büyük */
+            box-shadow: 4px 4px 8px #f1b0b7, -4px -4px 8px #ffffff !important;
+            z-index: 3; /* En üstte */
+        }
+
         svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-        line { stroke: #d0d0d0; stroke-width: 1; transition: stroke 0.3s ease, stroke-width 0.3s ease; }
-        line.highlight { stroke: #17a2b8; stroke-width: 2; }
-        @keyframes drawLine { to { stroke-dashoffset: 0; } }
-        line.animated-highlight { stroke: #17a2b8; stroke-width: 2; animation: drawLine 0.5s linear forwards; }
-        .layer-label { text-align: center; position: absolute; top: -5px; left: 50%; transform: translateX(-50%); font-weight: 600; color: #6c757d; font-size: 0.9em; background-color: #ffffff; padding: 0 5px; border-radius: 4px; z-index: 2; }
-        .layer .layer-label { /* Katman etiketleri için pozisyon */
-             margin-bottom: 10px;
-             position: static; /* Normal akışa dönsün */
-             transform: none;
-             background: none;
-             padding: 0;
+        /* Normal bağlantı */
+        line { stroke: #d0d0d0; stroke-width: 0.8; transition: stroke 0.3s ease, stroke-width 0.3s ease; }
+        /* Vurgulanan bağlantı (Animasyonlu Kesik Çizgi) */
+        line.highlight {
+             stroke: #ff7f0e; /* Turuncu */
+             stroke-width: 1.5; /* Biraz daha kalın */
+             stroke-dasharray: 4; /* Kesik çizgi */
+             animation: dash 0.5s linear infinite;
+             transition: none; /* Animasyon geçişi bozmasın */
         }
+        @keyframes dash { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -8; } } /* Kesikli çizgi animasyonu */
+
+        /* Katman Etiketleri */
+        .layer-label { text-align: center; position: absolute; top: 5px; left: 50%; transform: translateX(-50%); font-weight: 600; color: #6c757d; font-size: 0.9em; background-color: rgba(255, 255, 255, 0.8); padding: 2px 8px; border: 1px solid #e0e0e0; border-radius: 4px; z-index: 5; white-space: nowrap; } /* z-index artırıldı */
+        .layer .layer-label { display: none; } /* Absolute kullanıldığı için bunu gizle */
+
     </style>
 </head>
 <body>
@@ -160,7 +231,7 @@
                 <button id="predictButton">Tahmin Et</button>
                 <button id="clearButton">Temizle</button>
             </div>
-            <div id="predictionArea">Tahmin Bekleniyor...</div>
+            <div id="predictionArea">Çizim Yapın veya Tahmin Edin</div>
             <div class="normalized-container">
                 <small>Modelin Gördüğü (28x28 Normalize):</small>
                 <div id="normalizedImageContainer">
@@ -172,21 +243,20 @@
         <!-- Sağ Panel: Neural Network Animasyonu -->
         <div class="right-panel">
              <h2>2. Tahmin Süreci (Animasyon)</h2>
-            <div class="network-container">
-                <div class="layer input-layer">
-                    <div class="layer-label">Giriş</div>
-                </div>
-                <div class="layer hidden-layer-1">
-                     <div class="layer-label">Gizli 1</div>
-                </div>
-                <div class="layer hidden-layer-2">
-                     <div class="layer-label">Gizli 2</div>
-                </div>
-                <div class="layer output-layer">
-                     <div class="layer-label">Çıkış (0-9)</div>
-                </div>
-                <svg id="connections"></svg>
-            </div>
+             <div class="network-container">
+                  <!-- Katman Etiketleri -->
+                  <div class="layer-label" style="left: 12.5%;">Giriş</div>
+                  <div class="layer-label" style="left: 37.5%;">Gizli 1</div>
+                  <div class="layer-label" style="left: 62.5%;">Gizli 2</div>
+                  <div class="layer-label" style="left: 87.5%;">Çıkış (0-9)</div>
+
+                 <!-- Katmanlar (Düğümler JS ile eklenecek) -->
+                 <div class="layer input-layer"></div>
+                 <div class="layer hidden-layer-1"></div>
+                 <div class="layer hidden-layer-2"></div>
+                 <div class="layer output-layer"></div>
+                 <svg id="connections"></svg>
+             </div>
         </div>
     </div>
 
@@ -194,5 +264,4 @@
     <script src="script.js"></script>
 
 </body>
-<script src="script.js"></script>
 </html>
